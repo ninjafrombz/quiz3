@@ -14,46 +14,45 @@ import (
 )
 
 type Note struct {
-	ID        int64     `json:"id"`
-	CreatedAt time.Time `json:"-"`
-	Name      string    `json:"name"`
-	Level     string    `json:"level"`
-	Contact   string    `json:"contact"`
-	Phone     string    `json:"phone"`
-	Email     string    `json:"email,omitempty"`
-	Website   string    `json:"website,omitempty"`
-	Address   string    `json:"address"`
-	Mode      []string  `json:"mode"`
-	Version   int32     `json:"version"`
+	ID          int64     `json:"id"`
+	CreatedAt   time.Time `json:"-"`
+	Task_Name   string    `json:"task_name"`
+	Description string    `json:"desription"`
+	Category    string    `json:"category"`
+	Priority    string    `json:"priority"`
+	Status      []string  `json:"status"`
+	Version     int32     `json:"version"`
+	// ID        int64     `json:"id"`
+	// CreatedAt time.Time `json:"-"`
+	// Name      string    `json:"name"`
+	// Level     string    `json:"level"`
+	// Contact   string    `json:"contact"`
+	// Phone     string    `json:"phone"`
+	// Email     string    `json:"email,omitempty"`
+	// Website   string    `json:"website,omitempty"`
+	// Address   string    `json:"address"`
+	// Mode      []string  `json:"mode"`
+	// Version   int32     `json:"version"`
 }
 
 func ValidateNote(v *validator.Validator, note *Note) {
 	// Use the Check() Method to execute our validation checks
-	v.Check(note.Name != "", "name", "must be provided")
-	v.Check(len(note.Name) <= 200, "name", "must not be more than 200 bytes long")
+	v.Check(note.Task_Name != "", "name", "must be provided")
+	v.Check(len(note.Task_Name) <= 200, "name", "must not be more than 200 bytes long")
 
-	v.Check(note.Level != "", "level", "must be provided")
-	v.Check(len(note.Level) <= 200, "level", "must not be more than 200 bytes long")
+	v.Check(note.Description != "", "level", "must be provided")
+	v.Check(len(note.Description) <= 200, "level", "must not be more than 200 bytes long")
 
-	v.Check(note.Contact != "", "contact", "must be provided")
-	v.Check(len(note.Contact) <= 200, "contact", "must not be more than 200 bytes long")
+	v.Check(note.Category != "", "contact", "must be provided")
+	v.Check(len(note.Category) <= 200, "contact", "must not be more than 200 bytes long")
 
-	v.Check(note.Address != "", "address", "must be provided")
-	v.Check(len(note.Address) <= 500, "address", "must not be more than 200 bytes long")
+	v.Check(note.Priority != "", "address", "must be provided")
+	v.Check(len(note.Priority) <= 500, "address", "must not be more than 200 bytes long")
 
-	v.Check(note.Phone != "", "phone", "must be provided")
-	v.Check(validator.Matches(note.Phone, validator.PhoneRX), "phone", "must be a valid phone number")
-
-	v.Check(note.Email != "", "email", "must be provided")
-	v.Check(validator.Matches(note.Email, validator.EmailRX), "email", "must be a valid email address")
-
-	v.Check(note.Website != "", "website", "must be provided")
-	v.Check(validator.ValidWebsite(note.Website), "website", "must be a valid URL")
-
-	v.Check(note.Mode != nil, "mode", "must be provided!")
-	v.Check(len(note.Mode) >= 1, "mode", "must contain at least one entry")
-	v.Check(len(note.Mode) <= 5, "mode", "must contain at most five entries")
-	v.Check(validator.Unique(note.Mode), "mode", "must not contain duplicate entries")
+	v.Check(note.Status != nil, "mode", "must be provided!")
+	v.Check(len(note.Status) >= 1, "mode", "must contain at least one entry")
+	v.Check(len(note.Status) <= 5, "mode", "must contain at most five entries")
+	v.Check(validator.Unique(note.Status), "mode", "must not contain duplicate entries")
 
 }
 
@@ -65,16 +64,15 @@ type NoteModel struct {
 
 func (m NoteModel) Insert(note *Note) error {
 	query := `
-		INSERT INTO notes (name, level, contact, phone, email, website, address, mode)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO notes (task_name, description, category, priority, status)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at, version
 	`
 	// Collect the data fields into a slice
 	args := []interface{}{
-		note.Name, note.Level,
-		note.Contact, note.Phone,
-		note.Email, note.Website,
-		note.Address, pq.Array(note.Mode),
+		note.Task_Name, note.Description,
+		note.Category, note.Priority,
+		pq.Array(note.Status),
 	}
 	// Create a context
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -92,7 +90,7 @@ func (m NoteModel) Get(id int64) (*Note, error) {
 	}
 	// Create the query
 	query := `
-		SELECT id, created_at, name, level, contact, phone, email, website, address, mode, version
+		SELECT id, created_at, task_name, description, category, priority, status, version
 		FROM notes
 		WHERE id = $1
 	`
@@ -106,14 +104,11 @@ func (m NoteModel) Get(id int64) (*Note, error) {
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(
 		&note.ID,
 		&note.CreatedAt,
-		&note.Name,
-		&note.Level,
-		&note.Contact,
-		&note.Phone,
-		&note.Email,
-		&note.Website,
-		&note.Address,
-		pq.Array(&note.Mode),
+		&note.Task_Name,
+		&note.Description,
+		&note.Category,
+		&note.Priority,
+		pq.Array(&note.Status),
 		&note.Version,
 	)
 	// Handle any errors
@@ -136,22 +131,18 @@ func (m NoteModel) Update(note *Note) error {
 	// Create a query
 	query := `
 		UPDATE notes
-		SET name = $1, level = $2, contact = $3,
-		    phone = $4, email = $5, website = $6,
-			address = $7, mode = $8, version = version + 1
-		WHERE id = $9
-		AND version = $10
+		SET task_name = $1, description = $2, category = $3,
+		    priority = $4, status = $5, version = version + 1
+		WHERE id = $6
+		AND version = $7
 		RETURNING version
 	`
 	args := []interface{}{
-		note.Name,
-		note.Level,
-		note.Contact,
-		note.Phone,
-		note.Email,
-		note.Website,
-		note.Address,
-		pq.Array(note.Mode),
+		&note.Task_Name,
+		&note.Description,
+		&note.Category,
+		&note.Priority,
+		pq.Array(&note.Status),
 		note.ID,
 		note.Version,
 	}
@@ -210,9 +201,7 @@ func (m NoteModel) Delete(id int64) error {
 func (m NoteModel) GetAll(name string, level string, mode []string, filters Filters) ([]*Note, Metadata, error) {
 	// Construct the query
 	query := fmt.Sprintf(`
-		SELECT COUNT (*) OVER(), id, created_at, name, level,
-		       contact, phone, email, website,
-			   address, mode, version
+		SELECT COUNT (*) OVER(), id, created_at, task_name, description, category, priority, status, version
 		FROM notes
 		WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND (to_tsvector('simple', level) @@ plainto_tsquery('simple', $2) OR $2 = '')
@@ -240,14 +229,11 @@ func (m NoteModel) GetAll(name string, level string, mode []string, filters Filt
 			&totalRecords,
 			&note.ID,
 			&note.CreatedAt,
-			&note.Name,
-			&note.Level,
-			&note.Contact,
-			&note.Phone,
-			&note.Email,
-			&note.Website,
-			&note.Address,
-			pq.Array(&note.Mode),
+			&note.Task_Name,
+			&note.Description,
+			&note.Category,
+			&note.Priority,
+			pq.Array(&note.Status),
 			&note.Version,
 		)
 		if err != nil {

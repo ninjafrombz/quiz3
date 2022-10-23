@@ -15,14 +15,11 @@ import (
 func (app *application) createNoteHandler(w http.ResponseWriter, r *http.Request) {
 	// Our target decode destination fmt.Fprintln(w, "create a new Note..")
 	var input struct {
-		Name    string   `json:"name"`
-		Level   string   `json:"level"`
-		Contact string   `json:"contact"`
-		Phone   string   `json:"phone"`
-		Email   string   `json:"email"`
-		Website string   `json:"website"`
-		Address string   `json:"address"`
-		Mode    []string `json:"mode"`
+		Task_name string `json:"task_name"`
+		Description string `json:"description"`
+		Category string `json:"category"`
+		Priority string `json:"priority"`
+		Status []string `json:"status"`
 	}
 
 	// Initialize a new json.Decoder instance
@@ -34,14 +31,13 @@ func (app *application) createNoteHandler(w http.ResponseWriter, r *http.Request
 
 	// Copy the values from the input struct to a new Note struct
 	Note := &data.Note{
-		Name:    input.Name,
-		Level:   input.Level,
-		Contact: input.Contact,
-		Phone:   input.Phone,
-		Email:   input.Email,
-		Website: input.Website,
-		Address: input.Address,
-		Mode:    input.Mode,
+
+		Task_Name: input.Task_name,
+		Description: input.Description,
+		Category: input.Category,
+		Priority: input.Priority,
+		Status: input.Status,
+
 	}
 
 	//Initialize a new validator instance
@@ -126,14 +122,11 @@ func (app *application) updateNoteHandler(w http.ResponseWriter, r *http.Request
 	// default value of nil
 	// If a field remains nil then we know that the client did not update it
 	var input struct {
-		Name    *string  `json:"name"`
-		Level   *string  `json:"level"`
-		Contact *string  `json:"contact"`
-		Phone   *string  `json:"phone"`
-		Email   *string  `json:"email"`
-		Website *string  `json:"website"`
-		Address *string  `json:"address"`
-		Mode    []string `json:"mode"`
+		Task_Name    *string  `json:"task_name"`
+		Description   *string  `json:"description"`
+		Category *string  `json:"category"`
+		Priority   *string  `json:"priority"`
+		Status    []string `json:"status"`
 	}
 
 	// Initialize a new json.Decoder instance
@@ -143,29 +136,20 @@ func (app *application) updateNoteHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 	// Check for updates
-	if input.Name != nil {
-		Note.Name = *input.Name
+	if input.Task_Name != nil {
+		Note.Task_Name = *input.Task_Name
 	}
-	if input.Level != nil {
-		Note.Level = *input.Level
+	if input.Description != nil {
+		Note.Description = *input.Description
 	}
-	if input.Contact != nil {
-		Note.Contact = *input.Contact
+	if input.Category != nil {
+		Note.Category = *input.Category
 	}
-	if input.Phone != nil {
-		Note.Phone = *input.Phone
+	if input.Priority != nil {
+		Note.Priority = *input.Priority
 	}
-	if input.Email != nil {
-		Note.Email = *input.Email
-	}
-	if input.Website != nil {
-		Note.Website = *input.Website
-	}
-	if input.Address != nil {
-		Note.Address = *input.Address
-	}
-	if input.Mode != nil {
-		Note.Mode = input.Mode
+	if input.Status != nil {
+		Note.Status = input.Status
 	}
 
 	// Perform validation on the updated Note. If validation fails, then
@@ -231,18 +215,18 @@ func (app *application) deleteNoteHandler(w http.ResponseWriter, r *http.Request
 func (app *application) listNotesHandler(w http.ResponseWriter, r *http.Request) {
 	// Create an input struct to hold our query paraneters
 	var input struct {
-		Name  string
-		Level string
-		Mode  []string
+		Task_Name  string
+		Description string
+		Status  []string
 		data.Filters
 	}
 	v := validator.New()
 	// Get the url values map
 	qs := r.URL.Query()
 	// Use the helper methods to extfract the values
-	input.Name = app.readString(qs, "name", "")
-	input.Level = app.readString(qs, "level", "")
-	input.Mode = app.readCSV(qs, "mode", []string{})
+	input.Task_Name = app.readString(qs, "name", "")
+	input.Description = app.readString(qs, "level", "")
+	input.Status = app.readCSV(qs, "mode", []string{})
 	//Get the page information
 	input.Filters.Page = app.readInt(qs, "page", 1, v)
 	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
@@ -256,7 +240,7 @@ func (app *application) listNotesHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	// Get a listing of all Notes
-	Notes, metadata, err := app.models.Notes.GetAll(input.Name, input.Level, input.Mode, input.Filters)
+	Notes, metadata, err := app.models.Notes.GetAll(input.Task_Name, input.Description, input.Status, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -12,9 +12,8 @@ import (
 	"os"
 	"time"
 
-	"quiz3.desireamagwula.net/internal/data"
-
 	_ "github.com/lib/pq"
+	"quiz3.desireamagwula.net/internal/data"
 )
 
 const version = "1.0.0"
@@ -44,7 +43,7 @@ func main() {
 	// read in the flags that are needed to populate our config
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development | staging | production)")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("TODOAPP_DB_DSN"), "Postgresql DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("TODO_DB_DSN"), "Postgresql DSN")
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "Postgresql max open CONNECTIONS")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "Postgresql idle open CONNECTIONS")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgresQL max connection idle time")
