@@ -3,3 +3,6 @@ Description
 Category 
 Priority 
 Status (active or not active)
+
+
+BODY='{"task_name":"XYZ", "description":"preschool", "category":"Jane Smith", "priority":"501-607-1123", "status":["online", "face-to-face"]}'

@@ -1,0 +1,1 @@
+ALTER TABLE notes DROP CONSTRAINT IF EXISTS status_length_check;

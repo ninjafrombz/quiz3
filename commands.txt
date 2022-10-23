@@ -1,0 +1,3 @@
+curl -i -d "$BODY" localhost:4000/v1/Notes (insert into the database)
+curl localhost:4000/v1/Notes (show the database)
+

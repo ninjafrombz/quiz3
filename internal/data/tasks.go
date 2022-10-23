@@ -198,20 +198,20 @@ func (m NoteModel) Delete(id int64) error {
 	return nil
 
 }
-func (m NoteModel) GetAll(name string, level string, mode []string, filters Filters) ([]*Note, Metadata, error) {
+func (m NoteModel) GetAll(task_name string, description string, status []string, filters Filters) ([]*Note, Metadata, error) {
 	// Construct the query
 	query := fmt.Sprintf(`
 		SELECT COUNT (*) OVER(), id, created_at, task_name, description, category, priority, status, version
 		FROM notes
-		WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
-		AND (to_tsvector('simple', level) @@ plainto_tsquery('simple', $2) OR $2 = '')
-		AND (mode @> $3 OR $3 = '{}' )
+		WHERE (to_tsvector('simple', task_name) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		AND (to_tsvector('simple', description) @@ plainto_tsquery('simple', $2) OR $2 = '')
+		AND (status @> $3 OR $3 = '{}' )
 		ORDER by %s %s, id ASC
 		LIMIT $4 OFFSET $5`, filters.sortColumn(), filters.sortOrder())
 	// Create
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	args := []interface{}{name, level, pq.Array(mode), filters.limit(), filters.offSet()}
+	args := []interface{}{task_name, description, pq.Array(status), filters.limit(), filters.offSet()}
 	// Execute the query
 	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {

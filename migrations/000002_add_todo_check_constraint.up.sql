@@ -1,0 +1,1 @@
+ALTER TABLE notes ADD CONSTRAINT status_length_check CHECK (array_length(status, 1) BETWEEN 1 AND 5);
