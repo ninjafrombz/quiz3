@@ -1,3 +1,12 @@
 curl -i -d "$BODY" localhost:4000/v1/Notes (insert into the database)
 curl localhost:4000/v1/Notes (show the database)
-
+curl -i localhost:4000/v1/Notes/1 
+curl -X PATCH -d '{"task_name":"water the plants"}' localhost:4000/v1/Notes/1
+curl -X DELETE localhost:4000/v1/Notes/2
+curl -w '\nTime: %{time_total}s \n' -i localhost:4000/v1/Notes/1
+curl "localhost:4000/v1/Notes?sort=task_name"
+curl "localhost:4000/v1/Notes?page=1&page_size=20"
+curl "localhost:4000/v1/Notes?page=1220&page_size=200&sort=task_name"
+curl "localhost:4000/v1/Notes?page=0&page_size=-1&sort=task_name"
+curl "localhost:4000/v1/Notes?task_name=washing&description=doing+dishes&category=home+chores&page_size=1"
+curl "localhost:4000/v1/Notes?task_name=washing&description=doing+dishes&category=home+chores&page_size=1&sort=-task_name"

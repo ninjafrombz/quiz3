@@ -5,4 +5,7 @@ Priority
 Status (active or not active)
 
 
-BODY='{"task_name":"XYZ", "description":"preschool", "category":"Jane Smith", "priority":"501-607-1123", "status":["online", "face-to-face"]}'
+BODY='{"task_name":"Clean", "description":"Clean the living room for the wedding", "category":"home chores", "priority":"high", "status":["active", "finished"]}'
+BODY='{"task_name":"Dishes", "description":" Wash the dishes by 9pm", "category":"home chores", "priority":"medium", "status":["active", "finished"]}'
+BODY='{"task_name":"Dishes", "description":" Wash the dishes by 9pm", "category":"home chores", "priority":"medium", "status":["active", "finished"]}'
+BODY='{"task_name":"Dishes", "description":" Wash the dishes by 9pm", "category":"home chores", "priority":"medium", "status":["active", "finished"]}'

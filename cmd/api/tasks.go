@@ -233,7 +233,7 @@ func (app *application) listNotesHandler(w http.ResponseWriter, r *http.Request)
 	// Get the sort info
 	input.Filters.Sort = app.readString(qs, "sort", "id")
 	// Specify the allowed sort values
-	input.Filters.SortList = []string{"id", "name", "level", "-id", "-name", "-level"}
+	input.Filters.SortList = []string{"id", "task_name", "description", "-id", "-task_name", "-description"}
 	// CHeck for validation error
 	if data.ValidateFilters(v, input.Filters); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
